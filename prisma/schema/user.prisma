@@ -4,11 +4,12 @@ model User {
     email    String @unique
     password String
 
-    role      Role     @default(TENANT)
-    status    status   @default(ACTIVE)
-    profile   Profile?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    role       Role       @default(TENANT)
+    status     status     @default(ACTIVE)
+    profile    Profile?
+    properties Property[]
+    createdAt  DateTime   @default(now())
+    updatedAt  DateTime   @updatedAt
 
     @@map("users")
 }

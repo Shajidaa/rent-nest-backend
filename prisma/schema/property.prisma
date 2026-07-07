@@ -1,0 +1,33 @@
+model Property {
+    id              String  @id @default(uuid())
+    landlordId      String
+    user            User    @relation(fields: [landlordId], references: [id], onDelete: Cascade)
+    title           String  @db.VarChar(255)
+    description     String  @db.Text
+    city            String  @db.VarChar(255)
+    area            String  @db.VarChar(255)
+    fullAddress     String  @db.VarChar(255)
+    price_per_month Float
+    securityDeposit Float
+    categoryId      String?
+
+    category        Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+    bedrooms        Int
+    bathrooms       Int
+    amenities       String[]
+    facing          FacingDirection
+    veranda         Int?
+    images          String[]
+    video           String?
+    size            Float
+    sizeUnit        SizeUnit
+    utilities       String[]
+    preferredTenant PreferredTenant
+    parking         Boolean         @default(false)
+
+    status      PropertyStatus @default(AVAILABLE)
+    isAvailable Boolean        @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,10 @@
+model Category {
+    id          String     @id @default(uuid())
+    name        String     @db.VarChar(255)
+    slug        String     @unique @db.VarChar(255)
+    iconUrl     String?    @db.Text
+    description String?    @db.Text
+    properties  Property[]
+
+    @@map("categories")
+}

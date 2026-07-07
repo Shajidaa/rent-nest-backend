@@ -10,3 +10,32 @@ enum status {
     SUSPENDED
     BANNED
 }
+
+enum PropertyStatus {
+    AVAILABLE
+    UNAVAILABLE
+    PENDING
+    RENTED
+}
+
+enum FacingDirection {
+    NORTH
+    SOUTH
+    EAST
+    WEST
+}
+
+enum SizeUnit {
+    SQFT
+    SQM
+}
+
+enum PreferredTenant {
+    FAMILY
+    BACHELOR
+    STUDENT
+    JOB_HOLDER
+    OFFICE_COMMERCIAL
+    APARTMENT
+    ANY
+}
