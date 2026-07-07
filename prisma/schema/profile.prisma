@@ -2,7 +2,7 @@ model Profile {
     id           String  @id @default(uuid())
     profilePhoto String?
     bio          String?
-    phoneNumber  String?
+    phoneNumber  Int?
     userId       String  @unique
     user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
