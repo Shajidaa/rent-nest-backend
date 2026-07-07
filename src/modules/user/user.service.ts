@@ -1,10 +1,9 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../../lib/prisma";
 
-import config from "../../config";
-
 const createUserFromDB = async (payload: any) => {
-  const { name, email, password, profilePhoto, phoneNumber, bio } = payload;
+  const { name, email, password, role, profilePhoto, phoneNumber, bio } =
+    payload;
   const isUserExist = await prisma.user.findUnique({
     where: {
       email,
@@ -23,6 +22,7 @@ const createUserFromDB = async (payload: any) => {
       name,
       email,
       password: hashedPassword,
+      role: role,
     },
   });
   await prisma.profile.create({

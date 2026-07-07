@@ -1,17 +1,17 @@
 model Property {
-    id              String  @id @default(uuid())
+    id              String @id @default(uuid())
     landlordId      String
-    user            User    @relation(fields: [landlordId], references: [id], onDelete: Cascade)
-    title           String  @db.VarChar(255)
-    description     String  @db.Text
-    city            String  @db.VarChar(255)
-    area            String  @db.VarChar(255)
-    fullAddress     String  @db.VarChar(255)
+    user            User   @relation(fields: [landlordId], references: [id], onDelete: Cascade)
+    title           String @db.VarChar(255)
+    description     String @db.Text
+    city            String @db.VarChar(255)
+    area            String @db.VarChar(255)
+    fullAddress     String @db.VarChar(255)
     price_per_month Float
     securityDeposit Float
-    categoryId      String?
+    categoryId      String
 
-    category        Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+    category        Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
     bedrooms        Int
     bathrooms       Int
     amenities       String[]

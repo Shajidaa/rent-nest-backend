@@ -5,6 +5,11 @@ import { userRouter } from "./modules/user/user.route";
 import { authRouter } from "./modules/auth/auth.route";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
 import { notFound } from "./middleware/notFound";
+import { propertyRouter } from "./modules/property/property.route";
+import { landlordRouter } from "./modules/landlord/landlord.route";
+import { auth } from "./middleware/auth";
+import { Role } from "../generated/prisma/client";
+import { categoryRouter } from "./modules/categories/categories.route";
 
 const app: Application = Express();
 
@@ -24,6 +29,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/categories", categoryRouter);
+app.use("/api/properties", propertyRouter);
+app.use("/api/landlords", auth(Role.LANDLORD), landlordRouter);
+
 app.use(notFound);
 app.use(globalErrorHandler);
 export default app;
