@@ -1,7 +1,4 @@
-export interface ILandlord {
-  id: string;
-  landlordId: string;
-
+export interface CreatePropertyInput {
   title: string;
   description: string;
   city: string;
@@ -10,22 +7,15 @@ export interface ILandlord {
   price_per_month: number;
   securityDeposit: number;
   categoryId: string;
-
   bedrooms: number;
   bathrooms: number;
   amenities: string[];
-  facing: string;
-  floor: number;
-  veranda: number | null;
+  facing: any;
+  veranda?: number;
   images: string[];
-  video?: string | null;
   size: number;
-  sizeUnit: string;
+  sizeUnit: any;
   utilities: string[];
-  preferredTenant: string;
-  parking: boolean;
-
-  status: string;
-  isFurnished: string;
-  isAvailable: boolean;
+  preferredTenant: any;
+  parking?: boolean;
 }

@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { LandlordController } from "./landlord.controller";
+import { landlordController } from "./landlord.controller";
 
 const router = Router();
-router.post("/", LandlordController.creteLandlord);
+router.post("/", landlordController.creteLandlord);
+router.get("/requests", landlordController.getLandlordProperties);
 export const landlordRouter = router;

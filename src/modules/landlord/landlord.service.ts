@@ -1,26 +1,5 @@
 import { prisma } from "../../lib/prisma";
-
-interface CreatePropertyInput {
-  title: string;
-  description: string;
-  city: string;
-  area: string;
-  fullAddress: string;
-  price_per_month: number;
-  securityDeposit: number;
-  categoryId: string;
-  bedrooms: number;
-  bathrooms: number;
-  amenities: string[];
-  facing: any;
-  veranda?: number;
-  images: string[];
-  size: number;
-  sizeUnit: any;
-  utilities: string[];
-  preferredTenant: any;
-  parking?: boolean;
-}
+import { CreatePropertyInput } from "./landlord.interface";
 
 const createLandlord = async (
   data: CreatePropertyInput,
@@ -28,7 +7,6 @@ const createLandlord = async (
 ) => {
   const { categoryId, ...restOfPropertyData } = data;
 
-  // Build the core payload first
   const propertyCreatePayload: any = {
     ...restOfPropertyData,
     user: {
@@ -58,6 +36,25 @@ const createLandlord = async (
 
   return newProperty;
 };
+const getLandlordProperties = async (landlordId: string) => {
+  const properties = await prisma.property.findMany({
+    where: {
+      landlordId: landlordId,
+    },
+    include: {
+      category: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+  return properties;
+};
 export const LandlordService = {
   createLandlord,
+  getLandlordProperties,
 };
