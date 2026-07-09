@@ -35,7 +35,50 @@ const getLandlordProperties = catchAsync(
     });
   },
 );
+const updateLandlord = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const landlordId = req.user?.id;
+    const landId = req.params.id;
+    const updateData = req.body;
+
+    const updatedLandlord = await LandlordService.updateLandlord(
+      landlordId as string,
+      landId as string,
+      updateData,
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Landlord updated successfully",
+      data: updatedLandlord,
+    });
+  },
+);
+const deleteLandlord = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const landlordId = req.user?.id;
+    const landId = req.params.id;
+    await LandlordService.deleteLandlord(
+      landlordId as string,
+      landId as string,
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Landlord deleted successfully",
+      data: null,
+    });
+  },
+);
+const updateLandlordStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const landlordId = req.params.id;
+  },
+);
 export const landlordController = {
   creteLandlord,
   getLandlordProperties,
+  updateLandlord,
+  deleteLandlord,
+  updateLandlordStatus,
 };

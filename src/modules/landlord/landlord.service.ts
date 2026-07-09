@@ -54,7 +54,38 @@ const getLandlordProperties = async (landlordId: string) => {
   });
   return properties;
 };
+const updateLandlord = async (
+  landlordId: string,
+  landId: string,
+  updateData: any,
+) => {
+  const updatedLandlord = await prisma.property.update({
+    where: { landlordId: landlordId, id: landId },
+
+    data: updateData,
+    include: {
+      category: true,
+      user: {
+        select: {
+          id: true,
+
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+  return updatedLandlord;
+};
+const deleteLandlord = async (landlordId: string, landId: string) => {
+  const deletedLandlord = await prisma.property.delete({
+    where: { landlordId: landlordId, id: landId },
+  });
+  return deletedLandlord;
+};
 export const LandlordService = {
   createLandlord,
   getLandlordProperties,
+  updateLandlord,
+  deleteLandlord,
 };
