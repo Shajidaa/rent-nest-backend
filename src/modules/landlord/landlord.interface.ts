@@ -1,21 +1,35 @@
+import {
+  FacingDirection,
+  PreferredTenant,
+  PropertyStatus,
+  SizeUnit,
+} from "../../../generated/prisma/client";
+
 export interface CreatePropertyInput {
+  id: string;
   title: string;
   description: string;
   city: string;
   area: string;
   fullAddress: string;
+  categoryId: string;
+  landlordId: string;
   price_per_month: number;
   securityDeposit: number;
-  categoryId: string;
   bedrooms: number;
   bathrooms: number;
   amenities: string[];
-  facing: any;
-  veranda?: number;
+  facing: FacingDirection;
+  veranda: number | null;
   images: string[];
+  video: string | null;
   size: number;
-  sizeUnit: any;
+  sizeUnit: SizeUnit;
   utilities: string[];
-  preferredTenant: any;
-  parking?: boolean;
+  preferredTenant: PreferredTenant;
+  parking: boolean;
+  status: PropertyStatus;
+  isAvailable: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

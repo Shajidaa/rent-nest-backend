@@ -72,7 +72,8 @@ const deleteLandlord = catchAsync(
 );
 const updateLandlordStatus = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const landlordId = req.params.id;
+    const landlordId = req.user?.id;
+    const landId = req.params.id;
   },
 );
 export const landlordController = {
