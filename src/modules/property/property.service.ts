@@ -137,6 +137,15 @@ const getAllProperties = async (query: PropertyQueryFilter) => {
 
   return properties;
 };
+const getPropertyId = async (id: string) => {
+  const property = await prisma.property.findUniqueOrThrow({
+    where: {
+      id: id,
+    },
+  });
+  return property;
+};
 export const propertyService = {
   getAllProperties,
+  getPropertyId,
 };
