@@ -27,7 +27,7 @@ model Property {
 
     status      PropertyStatus @default(AVAILABLE)
     isAvailable Boolean        @default(true)
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    views       Int            @default(0)
+    createdAt   DateTime       @default(now())
+    updatedAt   DateTime       @updatedAt
 }
