@@ -84,36 +84,47 @@ const deleteLandlord = async (landlordId: string, landId: string) => {
   });
   return deletedLandlord;
 };
+
 const updateLandlordStatusDB = async (
-  landlordId: string,
-  requestId: string,
-  newStatus: RequestStatus,
+  rentalId: string,
+  propertyId: string,
+  status: "APPROVED" | "REJECTED",
 ) => {
-  return await prisma.$transaction(async (tx) => {
-    const rentalRequest = await tx.rental.findUniqueOrThrow({
-      where: { id: requestId },
-      include: { property: true },
+  const isRentalExist = await prisma.rental.findUnique({
+    where: { id: rentalId },
+  });
+
+  if (!isRentalExist) {
+    throw new Error("Rental request not found with the provided ID.");
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    const updatedRental = await tx.rental.update({
+      where: { id: rentalId },
+      data: { status: status },
     });
 
-    const updatedRequest = await tx.rental.update({
-      where: { id: requestId },
-      data: { status: newStatus },
-    });
-
-    if (newStatus === RequestStatus.APPROVED) {
+    if (status === "APPROVED") {
+      // Do (isAvailable: false)
       await tx.property.update({
-        where: { id: rentalRequest.propertyId },
-        data: { status: "PENDING" },
+        where: { id: propertyId },
+        data: { isAvailable: false, status: "UNAVAILABLE" },
       });
-    } else if (newStatus === RequestStatus.REJECTED) {
-      await tx.property.update({
-        where: { id: rentalRequest.propertyId },
-        data: { status: "AVAILABLE" },
+
+      await tx.rental.updateMany({
+        where: {
+          propertyId: propertyId,
+          id: { not: rentalId },
+          status: "PENDING",
+        },
+        data: { status: "REJECTED" },
       });
     }
 
-    return updatedRequest;
+    return updatedRental;
   });
+
+  return result;
 };
 const getPropertyRequests = async (propertyId: string) => {
   const requests = await prisma.rental.findMany({
@@ -121,7 +132,12 @@ const getPropertyRequests = async (propertyId: string) => {
       propertyId: propertyId,
     },
     include: {
-      tenant: true,
+      tenant: {
+        omit: {
+          password: true,
+          updatedAt: true,
+        },
+      },
     },
   });
 

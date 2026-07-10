@@ -72,13 +72,13 @@ const deleteLandlord = catchAsync(
 );
 const updateLandlordStatus = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const tenant = req.user?.id;
-    const landId = req.params.id;
-    const { status } = req.body;
+    const rentalId = req.params.id;
+    const { propertyId, status } = req.body;
+
     const property = await LandlordService.updateLandlordStatusDB(
-      tenant as string,
-      landId as string,
-      status,
+      rentalId as string,
+      propertyId as string,
+      status as "APPROVED" | "REJECTED",
     );
     sendResponse(res, {
       statusCode: httpStatus.OK,
