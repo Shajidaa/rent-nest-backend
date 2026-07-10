@@ -2,7 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { IRentalRequestPayload } from "./rental.interface";
 
 const createRentalRequestDB = async (payload: IRentalRequestPayload) => {
-  console.log("RECEIVED PAYLOAD:", payload);
+  // console.log("RECEIVED PAYLOAD:", payload);
 
   const { propertyId, tenantId, status, message, numberOfGuests } = payload;
 
@@ -20,11 +20,28 @@ const createRentalRequestDB = async (payload: IRentalRequestPayload) => {
     throw new Error("Property not found with the provided propertyId.");
   }
 
-  // 2. Set default rental dates
+  const existingActiveRequest = await prisma.rental.findFirst({
+    where: {
+      propertyId: propertyId,
+      tenantId: tenantId,
+      status: {
+        in: ["PENDING", "APPROVED"],
+      },
+    },
+  });
+
+  if (existingActiveRequest) {
+    throw new Error(
+      `You already have a ${existingActiveRequest.status.toLowerCase()} request for this property.`,
+    );
+  }
+
+  // 3. Set default rental dates
   const startDate = new Date();
   const endDate = new Date();
   endDate.setDate(startDate.getDate() + 10);
 
+  // 4. Create the new rental request
   const result = await prisma.rental.create({
     data: {
       status: status || "PENDING",

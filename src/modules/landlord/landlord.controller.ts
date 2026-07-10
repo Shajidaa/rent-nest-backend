@@ -88,10 +88,25 @@ const updateLandlordStatus = catchAsync(
     });
   },
 );
+const getPropertyRequest = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const propertyId = req.params.id;
+    const result = await LandlordService.getPropertyRequests(
+      propertyId as string,
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Get all request from tenants..........",
+      data: result,
+    });
+  },
+);
 export const landlordController = {
   creteLandlord,
   getLandlordProperties,
   updateLandlord,
   deleteLandlord,
   updateLandlordStatus,
+  getPropertyRequest,
 };
