@@ -39,3 +39,9 @@ enum PreferredTenant {
     APARTMENT
     ANY
 }
+
+enum RequestStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}

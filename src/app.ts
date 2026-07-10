@@ -10,6 +10,7 @@ import { landlordRouter } from "./modules/landlord/landlord.route";
 import { auth } from "./middleware/auth";
 import { Role } from "../generated/prisma/client";
 import { categoryRouter } from "./modules/categories/categories.route";
+import { rentalRouter } from "./modules/rental/rental.route";
 
 const app: Application = Express();
 
@@ -32,7 +33,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/properties", propertyRouter);
 app.use("/api/landlords", auth(Role.LANDLORD), landlordRouter);
-
+app.use("/api/rentals", auth(Role.TENANT), rentalRouter);
 app.use(notFound);
 app.use(globalErrorHandler);
 export default app;

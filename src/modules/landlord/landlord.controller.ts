@@ -72,8 +72,20 @@ const deleteLandlord = catchAsync(
 );
 const updateLandlordStatus = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const landlordId = req.user?.id;
+    const tenant = req.user?.id;
     const landId = req.params.id;
+    const { status } = req.body;
+    const property = await LandlordService.updateLandlordStatusDB(
+      tenant as string,
+      landId as string,
+      status,
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Landlord updated successfully",
+      data: property,
+    });
   },
 );
 export const landlordController = {

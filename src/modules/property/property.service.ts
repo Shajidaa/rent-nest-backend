@@ -138,25 +138,31 @@ const getAllProperties = async (query: PropertyQueryFilter) => {
   return properties;
 };
 const getPropertyId = async (id: string) => {
-  const transactionResult = await prisma.$transaction(async (tx) => {
-    await tx.property.update({
-      where: {
-        id: id,
-      },
-      data: {
-        views: {
-          increment: 1,
+  const transactionResult = await prisma.$transaction(
+    async (tx) => {
+      await tx.property.update({
+        where: {
+          id: id,
         },
-      },
-    });
+        data: {
+          views: {
+            increment: 1,
+          },
+        },
+      });
 
-    const property = await tx.property.findUniqueOrThrow({
-      where: {
-        id: id,
-      },
-    });
-    return property;
-  });
+      const property = await tx.property.findUniqueOrThrow({
+        where: {
+          id: id,
+        },
+      });
+      return property;
+    },
+    {
+      maxWait: 15000,
+      timeout: 20000,
+    },
+  );
   return transactionResult;
 };
 export const propertyService = {
