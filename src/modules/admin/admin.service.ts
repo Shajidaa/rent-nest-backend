@@ -33,15 +33,6 @@ const updateUserStatusInDb = async (
   userId: string,
   status: "ACTIVE" | "BANNED",
 ) => {
-  if (!["ACTIVE", "BANNED"].includes(status)) {
-    throw new Error("Invalid state transition targeting user entity");
-  }
-
-  const userExists = await prisma.user.findUnique({ where: { id: userId } });
-  if (!userExists) {
-    throw new Error("Targeted user account could not be found");
-  }
-
   return await prisma.user.update({
     where: { id: userId },
     data: { status },
