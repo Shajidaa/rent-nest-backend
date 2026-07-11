@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtPayload } from "jsonwebtoken";
-import { Role } from "../../generated/prisma/enums";
+import { Role, status } from "../../generated/prisma/enums";
 import config from "../config";
 import { prisma } from "../lib/prisma";
 import { catchAsync } from "../utils/catchAsync";
@@ -15,6 +15,7 @@ declare global {
         name: string;
         id: string;
         role: Role;
+        status: status;
       };
       rental?: Rental;
     }
@@ -42,7 +43,7 @@ export const auth = (...requiredRoles: Role[]) => {
       throw new Error(verifiedToken.error);
     }
 
-    const { email, name, id, role } = verifiedToken.data as JwtPayload;
+    const { email, name, id, role, status } = verifiedToken.data as JwtPayload;
 
     if (requiredRoles.length && !requiredRoles.includes(role)) {
       throw new Error(
@@ -56,6 +57,7 @@ export const auth = (...requiredRoles: Role[]) => {
         email,
         name,
         role,
+        status,
       },
     });
 
@@ -68,6 +70,7 @@ export const auth = (...requiredRoles: Role[]) => {
       name,
       id,
       role,
+      status: user.status,
     };
 
     next();

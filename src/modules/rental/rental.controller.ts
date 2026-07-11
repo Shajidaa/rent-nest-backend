@@ -3,12 +3,17 @@ import { catchAsync } from "../../utils/catchAsync";
 import { rentalService } from "./rental.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
+
 const createRentalRequest = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const rentalData = req.body;
 
     const tenantId = req.user?.id;
+    const status = req.user?.status;
 
+    if (status === "BANNED") {
+      throw new Error(`You can't created any rental request. You're banned `);
+    }
     const result = await rentalService.createRentalRequestDB({
       ...rentalData,
       tenantId,
