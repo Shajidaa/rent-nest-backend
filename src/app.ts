@@ -12,9 +12,24 @@ import { Role } from "../generated/prisma/client";
 import { categoryRouter } from "./modules/categories/categories.route";
 import { rentalRouter } from "./modules/rental/rental.route";
 import { paymentRouter } from "./modules/payment/payment.route";
+import { adminRouter } from "./modules/admin/admin.route";
+import express from "express";
+import { paymentController } from "./modules/payment/payment.controller";
+import config from "./config";
 
 const app: Application = Express();
-
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res, next) => {
+    console.log("🔔 Webhook middleware - Request received!");
+    console.log("Headers:", req.headers);
+    console.log("Body type:", typeof req.body);
+    console.log("Is Buffer:", Buffer.isBuffer(req.body));
+    next();
+  },
+  paymentController.handleWebhook,
+);
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 app.use(
@@ -35,7 +50,11 @@ app.use("/api/categories", categoryRouter);
 app.use("/api/properties", propertyRouter);
 app.use("/api/landlords", auth(Role.LANDLORD), landlordRouter);
 app.use("/api/rentals", auth(Role.TENANT), rentalRouter);
-app.use("/api/payments", paymentRouter);
+app.use("/api/payments", auth(Role.TENANT), paymentRouter);
+
+app.use("/api/admin", auth(Role.ADMIN), adminRouter);
+
 app.use(notFound);
 app.use(globalErrorHandler);
+
 export default app;

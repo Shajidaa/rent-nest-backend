@@ -5,6 +5,7 @@ import config from "../config";
 import { prisma } from "../lib/prisma";
 import { catchAsync } from "../utils/catchAsync";
 import { jwtUtils } from "../utils/jwt";
+import { Rental } from "../../generated/prisma/client";
 
 declare global {
   namespace Express {
@@ -15,6 +16,7 @@ declare global {
         id: string;
         role: Role;
       };
+      rental?: Rental;
     }
   }
 }

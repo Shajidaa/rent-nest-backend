@@ -1,47 +1,54 @@
 enum Role {
-    TENANT
-    LANDLORD
-    ADMIN
+  TENANT
+  LANDLORD
+  ADMIN
 }
 
 enum status {
-    ACTIVE
-    INACTIVE
-    SUSPENDED
-    BANNED
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BANNED
 }
 
 enum PropertyStatus {
-    AVAILABLE
-    UNAVAILABLE
-    PENDING
-    RENTED
+  AVAILABLE
+  UNAVAILABLE
+  PENDING
+  RENTED
 }
 
 enum FacingDirection {
-    NORTH
-    SOUTH
-    EAST
-    WEST
+  NORTH
+  SOUTH
+  EAST
+  WEST
 }
 
 enum SizeUnit {
-    SQFT
-    SQM
+  SQFT
+  SQM
 }
 
 enum PreferredTenant {
-    FAMILY
-    BACHELOR
-    STUDENT
-    JOB_HOLDER
-    OFFICE_COMMERCIAL
-    APARTMENT
-    ANY
+  FAMILY
+  BACHELOR
+  STUDENT
+  JOB_HOLDER
+  OFFICE_COMMERCIAL
+  APARTMENT
+  ANY
 }
 
 enum RequestStatus {
-    PENDING
-    APPROVED
-    REJECTED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
 }
