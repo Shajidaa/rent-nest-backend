@@ -15,7 +15,17 @@ export const handleCheckoutCompleted = async (
   const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
     expand: ["payment_intent"],
   });
+
   const paymentIntent = expandedSession.payment_intent as Stripe.PaymentIntent;
+  let receiptUrl: string | null = null;
+
+  if (
+    paymentIntent &&
+    typeof paymentIntent.latest_charge !== "string" &&
+    paymentIntent.latest_charge
+  ) {
+    receiptUrl = paymentIntent.latest_charge.receipt_url;
+  }
   try {
     await prisma.$transaction(async (tx) => {
       await tx.payment.create({
@@ -27,7 +37,7 @@ export const handleCheckoutCompleted = async (
           stripe_checkout_session_id: session.id,
           stripe_payment_intent_id: paymentIntent.id,
           payment_method: "STRIPE",
-          receipt_url: "",
+          receipt_url: receiptUrl,
         },
       });
 
