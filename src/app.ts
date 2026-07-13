@@ -17,7 +17,7 @@ import express from "express";
 
 import { validateRentalAccess } from "./middleware/paid";
 import { reviewRouter } from "./modules/review/review.route";
-import { paymentController } from "./modules/payment/payment.controller";
+
 const app: Application = Express();
 
 app.use("/api/payments/confirm", express.raw({ type: "application/json" }));
