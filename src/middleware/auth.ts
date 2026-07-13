@@ -6,6 +6,7 @@ import { prisma } from "../lib/prisma";
 import { catchAsync } from "../utils/catchAsync";
 import { jwtUtils } from "../utils/jwt";
 import { Rental } from "../../generated/prisma/client";
+import { Property } from "../../generated/prisma/client";
 
 declare global {
   namespace Express {
@@ -18,6 +19,7 @@ declare global {
         status: status;
       };
       rental?: Rental;
+      property?: Property;
     }
   }
 }

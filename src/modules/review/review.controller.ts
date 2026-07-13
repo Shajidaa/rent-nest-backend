@@ -5,8 +5,16 @@ import sendResponse from "../../utils/sendResponse";
 import HttpStatus from "http-status";
 const createdReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const tenantId = req.user?.id;
+    const { propertyId, rentalId } = req.body;
+
     const review = req.body;
-    const result = await reviewService.createdReview(review);
+    const result = await reviewService.createdReview(
+      tenantId as string,
+      propertyId,
+      rentalId,
+      review,
+    );
     sendResponse(res, {
       success: true,
       statusCode: HttpStatus.CREATED,

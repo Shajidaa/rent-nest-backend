@@ -16,7 +16,8 @@ import { adminRouter } from "./modules/admin/admin.route";
 import express from "express";
 
 import { paymentController } from "./modules/payment/payment.controller";
-import { isRentalPaid } from "./middleware/paid";
+import { validateRentalAccess } from "./middleware/paid";
+import { reviewRouter } from "./modules/review/review.route";
 const app: Application = Express();
 app.post(
   "/api/webhook",
@@ -49,7 +50,7 @@ app.use("/api/rentals", auth(Role.TENANT), rentalRouter);
 app.use("/api/payments", auth(Role.TENANT), paymentRouter);
 
 app.use("/api/admin", auth(Role.ADMIN), adminRouter);
-app.use("/api/reviews", auth(Role.TENANT), isRentalPaid, rentalRouter);
+app.use("/api/reviews", auth(Role.TENANT), validateRentalAccess, reviewRouter);
 app.use(notFound);
 app.use(globalErrorHandler);
 

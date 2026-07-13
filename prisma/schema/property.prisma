@@ -29,4 +29,5 @@ model Property {
   category        Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   user            User            @relation(fields: [landlordId], references: [id], onDelete: Cascade)
   rentals         Rental[]
+  review          Review[]
 }

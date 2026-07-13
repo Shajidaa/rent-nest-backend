@@ -132,6 +132,14 @@ const getAllProperties = async (query: PropertyQueryFilter) => {
       user: {
         omit: { password: true, createdAt: true, updatedAt: true },
       },
+      review: {
+        omit: {
+          id: true,
+          propertyId: true,
+          rentalId: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
