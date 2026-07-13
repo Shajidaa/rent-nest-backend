@@ -1,6 +1,6 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import Express, { Application, Request, Response } from "express";
+import Express, { Application, Request, Response, Router } from "express";
 import { userRouter } from "./modules/user/user.route";
 import { authRouter } from "./modules/auth/auth.route";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
@@ -15,16 +15,17 @@ import { paymentRouter } from "./modules/payment/payment.route";
 import { adminRouter } from "./modules/admin/admin.route";
 import express from "express";
 
-import { paymentController } from "./modules/payment/payment.controller";
 import { validateRentalAccess } from "./middleware/paid";
 import { reviewRouter } from "./modules/review/review.route";
+import { paymentController } from "./modules/payment/payment.controller";
 const app: Application = Express();
-app.post(
-  "/api/webhook",
-  express.raw({ type: "application/json" }),
-  paymentController.handleWebhook,
-);
 
+app.use("/api/payments/confirm", express.raw({ type: "application/json" }));
+// app.post(
+//   "/api/payments/confirm",
+//   express.raw({ type: "application/json" }),
+//   paymentController.handleWebhook,
+// );
 app.use(
   cors({
     origin: process.env.APP_URL,

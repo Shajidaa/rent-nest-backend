@@ -2,7 +2,7 @@ import { stripe } from "../../lib/stripe";
 import { prisma } from "../../lib/prisma";
 import Stripe from "stripe";
 import config from "../../config";
-// import { Prisma } from "../../../generated/prisma/client";
+
 import { handleCheckoutCompleted } from "./payment.utils";
 const createCheckoutSession = async (
   userId: string,
@@ -72,33 +72,6 @@ const createCheckoutSession = async (
     paymentUrl: { transactionResult },
   };
 };
-
-const getPaymentDetails = async (userId: string, paymentId: string) => {
-  const payment = await prisma.$transaction(async (tx) => {
-    return await tx.payment.findUnique({
-      where: {
-        id: paymentId,
-        rental_request: {
-          tenantId: userId,
-        },
-      },
-      include: {
-        rental_request: {
-          include: {
-            property: true,
-          },
-        },
-      },
-    });
-  });
-
-  if (!payment) {
-    throw new Error("Payment history record not found");
-  }
-
-  return payment;
-};
-
 const handleWebhook = async (payload: Buffer, signature: string) => {
   let event: Stripe.Event;
 
@@ -153,8 +126,43 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
     throw err;
   }
 };
+const userPayments = async (userId: string) => {
+  return await prisma.payment.findMany({
+    where: {
+      rental_request: {
+        tenantId: userId,
+      },
+    },
+    include: {
+      rental_request: {
+        include: { property: true },
+      },
+    },
+    orderBy: { created_at: "desc" },
+  });
+};
+
+const getPaymentDetails = async (userId: string, paymentId: string) => {
+  const payment = await prisma.payment.findUnique({
+    where: { id: paymentId },
+    include: {
+      rental_request: {
+        include: { property: true },
+      },
+    },
+  });
+
+  if (payment && payment.rental_request.tenantId !== userId) {
+    throw new Error("Unauthorized access to payment details");
+  }
+
+  if (!payment) throw new Error("Payment record not found");
+  return payment;
+};
+
 export const paymentServices = {
   createCheckoutSession,
   handleWebhook,
   getPaymentDetails,
+  userPayments,
 };

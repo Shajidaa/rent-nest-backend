@@ -1,4 +1,3 @@
-// payment.controller.ts
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
@@ -41,6 +40,18 @@ const handleWebhook = catchAsync(
     });
   },
 );
+const getUserPayments = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const result = await paymentServices.userPayments(userId as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User payment history retrieved successfully",
+    data: result,
+  });
+});
+
 const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const { id } = req.params;
@@ -53,7 +64,7 @@ const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "Payment data retrieved successfully",
+    message: "Payment details retrieved successfully",
     data: result,
   });
 });
@@ -62,4 +73,5 @@ export const paymentController = {
   createCheckoutSession,
   handleWebhook,
   getPaymentDetails,
+  getUserPayments,
 };
