@@ -6,6 +6,7 @@ export const handleCheckoutCompleted = async (
   session: Stripe.Checkout.Session,
 ) => {
   const rentalRequestId = session.metadata?.rentalRequestId;
+
   const userId = session.metadata?.userId;
 
   if (!rentalRequestId || !userId) {
@@ -43,7 +44,14 @@ export const handleCheckoutCompleted = async (
 
       await tx.rental.update({
         where: { id: rentalRequestId },
-        data: { status: "PAID" },
+        data: {
+          status: "PAID",
+          property: {
+            update: {
+              status: "RENTED",
+            },
+          },
+        },
       });
 
       console.log("✅ Payment record created and rental updated successfully");
