@@ -44,11 +44,11 @@ enum RequestStatus {
   PENDING
   APPROVED
   REJECTED
+  PAID
 }
 
 enum PaymentStatus {
   PENDING
   SUCCEEDED
   FAILED
-  REFUNDED
 }

@@ -19,7 +19,7 @@ export const isRentalApproved = catchAsync(
         id: rentalRequestId,
       },
     });
-    console.log("All Rentals with this ID:", allRentals);
+    // console.log("All Rentals with this ID:", allRentals);
 
     const rentalWithTenant = await prisma.rental.findFirst({
       where: {
@@ -27,7 +27,7 @@ export const isRentalApproved = catchAsync(
         tenantId: userId,
       },
     });
-    console.log("Rental with Tenant ID:", rentalWithTenant);
+    // console.log("Rental with Tenant ID:", rentalWithTenant);
 
     const rental = await prisma.rental.findFirst({
       where: {

@@ -1,6 +1,6 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import Express, { Application } from "express";
+import Express, { Application, Request, Response } from "express";
 import { userRouter } from "./modules/user/user.route";
 import { authRouter } from "./modules/auth/auth.route";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
@@ -14,30 +14,72 @@ import { rentalRouter } from "./modules/rental/rental.route";
 import { paymentRouter } from "./modules/payment/payment.route";
 import { adminRouter } from "./modules/admin/admin.route";
 import express from "express";
-import { paymentController } from "./modules/payment/payment.controller";
 import config from "./config";
-
+import { stripe } from "./lib/stripe";
+import { paymentController } from "./modules/payment/payment.controller";
 const app: Application = Express();
 app.post(
-  "/api/payments/webhook",
+  "/api/webhook",
   express.raw({ type: "application/json" }),
-  (req, res, next) => {
-    console.log("🔔 Webhook middleware - Request received!");
-    console.log("Headers:", req.headers);
-    console.log("Body type:", typeof req.body);
-    console.log("Is Buffer:", Buffer.isBuffer(req.body));
-    next();
-  },
   paymentController.handleWebhook,
 );
-app.use(Express.json());
-app.use(Express.urlencoded({ extended: true }));
+// const endpointSecret = config.stripe_webhook_secret;
+// app.post(
+//   "/webhook",
+//   express.raw({ type: "application/json" }),
+//   (request, response) => {
+//     let event = request.body;
+//     // Only verify the event if you have an endpoint secret defined.
+//     // Otherwise use the basic event deserialized with JSON.parse
+//     if (endpointSecret) {
+//       // Get the signature sent by Stripe
+//       const signature = request.headers["stripe-signature"];
+//       try {
+//         event = stripe.webhooks.constructEvent(
+//           request.body,
+//           signature as string,
+//           endpointSecret,
+//         );
+//       } catch (err: any) {
+//         console.log(`⚠️  Webhook signature verification failed.`, err.message);
+//         return response.sendStatus(400);
+//       }
+//     }
+
+//     // Handle the event
+//     switch (event.type) {
+//       case "payment_intent.succeeded":
+//         const paymentIntent = event.data.object;
+//         console.log(
+//           `PaymentIntent for ${paymentIntent.amount} was successful!`,
+//         );
+//         // Then define and call a method to handle the successful payment intent.
+//         // handlePaymentIntentSucceeded(paymentIntent);
+//         break;
+//       case "payment_method.attached":
+//         const paymentMethod = event.data.object;
+//         // Then define and call a method to handle the successful attachment of a PaymentMethod.
+//         // handlePaymentMethodAttached(paymentMethod);
+//         break;
+//       default:
+//         // Unexpected event type
+//         console.log(`Unhandled event type ${event.type}.`);
+//     }
+
+//     // Return a 200 response to acknowledge receipt of the event
+//     response.send();
+//   },
+// );
 app.use(
   cors({
     origin: process.env.APP_URL,
     credentials: true,
   }),
 );
+
+app.use(Express.json());
+app.use(Express.urlencoded({ extended: true }));
+
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
