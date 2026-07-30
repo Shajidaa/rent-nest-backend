@@ -163,6 +163,15 @@ const getPropertyId = async (id: string) => {
         where: {
           id: id,
         },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
       });
       return property;
     },
