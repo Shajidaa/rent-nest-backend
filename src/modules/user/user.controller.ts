@@ -5,18 +5,25 @@ import httpStatus from "http-status";
 import { userService } from "./user.service";
 import { jwtUtils } from "../../utils/jwt";
 import config from "../../config";
+import setCookie from "../../utils/cookie";
 const createdUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
-    const result = await userService.createUserFromDB(payload);
+    const { accessToken, refreshToken } =
+      await userService.createUserFromDB(payload);
+    setCookie(res, "accessToken", accessToken, 60 * 60 * 24);
 
+    setCookie(
+      res,
+      "refreshToken",
+      refreshToken,
+      Number(process.env.COOKIE_REFRESH_MAX_AGE),
+    );
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
       message: "user created successfully",
-      data: {
-        result,
-      },
+      data: { accessToken, refreshToken },
     });
   },
 );

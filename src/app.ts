@@ -21,11 +21,7 @@ import { reviewRouter } from "./modules/review/review.route";
 const app: Application = Express();
 
 app.use("/api/payments/confirm", express.raw({ type: "application/json" }));
-// app.post(
-//   "/api/payments/confirm",
-//   express.raw({ type: "application/json" }),
-//   paymentController.handleWebhook,
-// );
+
 app.use(
   cors({
     origin: process.env.APP_URL,

@@ -1,5 +1,8 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../../lib/prisma";
+import { jwtUtils } from "../../utils/jwt";
+import config from "../../config";
+import { SignOptions } from "jsonwebtoken";
 
 const createUserFromDB = async (payload: any) => {
   const { name, email, password, role, profilePhoto, phoneNumber, bio } =
@@ -17,33 +20,74 @@ const createUserFromDB = async (payload: any) => {
     password,
     Number(process.env.BCRYPT_SALT_ROUNDS),
   );
-  const createdUser = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-      role: role,
-    },
+  // const createdUser = await prisma.user.create({
+  //   data: {
+  //     name,
+  //     email,
+  //     password: hashedPassword,
+  //     role: role,
+  //   },
+  // });
+  // await prisma.profile.create({
+  //   data: {
+  //     userId: createdUser.id,
+  //     profilePhoto: profilePhoto,
+  //     phoneNumber: phoneNumber,
+  //     bio: bio,
+  //   },
+  // });
+  //   const user = await prisma.user.findUnique({
+  //     where: {
+  //       id: createdUser.id,
+  //       email: createdUser.email,
+  //     },
+  //     omit: { password: true },
+  //     include: {
+  //       profile: true,
+  //     },
+  //   });
+  //  return user;
+  const createdUser = await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role,
+      },
+    });
+
+    await tx.profile.create({
+      data: {
+        userId: user.id,
+        profilePhoto,
+        phoneNumber,
+        bio,
+      },
+    });
+
+    return user;
   });
-  await prisma.profile.create({
-    data: {
-      userId: createdUser.id,
-      profilePhoto: profilePhoto,
-      phoneNumber: phoneNumber,
-      bio: bio,
-    },
-  });
-  const user = await prisma.user.findUnique({
-    where: {
-      id: createdUser.id,
-      email: createdUser.email,
-    },
-    omit: { password: true },
-    include: {
-      profile: true,
-    },
-  });
-  return user;
+  const jwtPayload = {
+    id: createdUser.id,
+    name: createdUser.name,
+    email: createdUser.email,
+    role: createdUser.role,
+  };
+
+  const accessToken = jwtUtils.createToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET,
+    config.JWT_ACCESS_EXPIRES_IN as SignOptions,
+  );
+
+  const refreshToken = jwtUtils.createToken(
+    jwtPayload,
+    config.JWT_REFRESH_SECRET,
+    config.JWT_REFRESH_EXPIRES_IN as SignOptions,
+  );
+
+  return { accessToken, refreshToken };
 };
 const getMyProfile = async (userId: string) => {
   const user = await prisma.user.findUniqueOrThrow({
