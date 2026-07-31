@@ -42,7 +42,7 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/properties", propertyRouter);
-app.use("/api/landlords", auth(Role.LANDLORD), landlordRouter);
+app.use("/api/landlord-dashboard", auth(Role.LANDLORD), landlordRouter);
 app.use("/api/rentals", auth(Role.TENANT), rentalRouter);
 app.use("/api/payments", auth(Role.TENANT), paymentRouter);
 
