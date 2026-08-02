@@ -89,6 +89,7 @@ const createUserFromDB = async (payload: any) => {
 
   return { accessToken, refreshToken };
 };
+
 const getMyProfile = async (userId: string) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },

@@ -3,6 +3,7 @@ import { landlordController } from "./landlord.controller";
 
 const router = Router();
 router.post("/", landlordController.creteLandlord);
+router.get("/", landlordController.allProperties);
 router.get("/requests", landlordController.getLandlordProperties);
 router.put("/:id", landlordController.updateLandlord);
 router.delete("/:id", landlordController.deleteLandlord);

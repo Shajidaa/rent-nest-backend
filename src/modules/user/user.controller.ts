@@ -6,6 +6,7 @@ import { userService } from "./user.service";
 import { jwtUtils } from "../../utils/jwt";
 import config from "../../config";
 import setCookie from "../../utils/cookie";
+
 const createdUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
@@ -27,6 +28,7 @@ const createdUser = catchAsync(
     });
   },
 );
+
 const getProfile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { accessToken } = req.cookies;

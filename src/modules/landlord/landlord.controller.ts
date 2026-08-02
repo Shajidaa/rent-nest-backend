@@ -20,6 +20,22 @@ const creteLandlord = catchAsync(
     });
   },
 );
+const allProperties = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const landlordId = req.user?.id;
+    const properties = await LandlordService.getAllProperties(
+      landlordId as string,
+    );
+    console.log(properties);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "get  Landlord all property successfully",
+      data: { total: properties.length, data: properties },
+    });
+  },
+);
 const getLandlordProperties = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const landlordId = req.user?.id;
@@ -104,6 +120,7 @@ const getPropertyRequest = catchAsync(
 );
 export const landlordController = {
   creteLandlord,
+  allProperties,
   getLandlordProperties,
   updateLandlord,
   deleteLandlord,
