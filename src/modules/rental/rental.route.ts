@@ -4,5 +4,6 @@ import { rentalController } from "./rental.controller";
 const router = Router();
 router.post("/", rentalController.createRentalRequest);
 router.get("/", rentalController.getMyRentals);
+router.get("/rented-id", rentalController.getRentedRentalId);
 router.get("/:id", rentalController.getRentalDetails);
 export const rentalRouter = router;

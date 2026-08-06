@@ -17,10 +17,81 @@ import express from "express";
 
 import { validateRentalAccess } from "./middleware/paid";
 import { reviewRouter } from "./modules/review/review.route";
+import { Stripe } from "stripe";
+import { stripe } from "./lib/stripe";
+import config from "./config";
+import { handleCheckoutCompleted } from "./modules/payment/payment.utils";
+import { prisma } from "./lib/prisma";
 
 const app: Application = Express();
 
-app.use("/api/payments/confirm", express.raw({ type: "application/json" }));
+// app.use("/api/payments/confirm", express.raw({ type: "application/json" }));
+app.post(
+  "/api/payments/confirm",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const signature = req.headers["stripe-signature"] as string;
+
+    try {
+      const payload = req.body;
+      let event: Stripe.Event;
+
+      try {
+        event = stripe.webhooks.constructEvent(
+          payload,
+          signature,
+          config.stripe_webhook_secret as string,
+        );
+      } catch (err) {
+        console.error(`⚠️ Webhook signature verification failed.`, err);
+        // return res.status(400).send(`Webhook Error: ${err.message}`);
+      }
+
+      // ২. ইভেন্ট হ্যান্ডেল করুন
+      switch (event.type) {
+        case "checkout.session.completed":
+          await handleCheckoutCompleted(
+            event.data.object as Stripe.Checkout.Session,
+          );
+          break;
+
+        case "payment_intent.payment_failed":
+          const paymentIntent = event.data.object as Stripe.PaymentIntent;
+          console.log(`Payment failed for: ${paymentIntent.id}`);
+
+          await prisma.payment.updateMany({
+            where: {
+              stripe_checkout_session_id:
+                paymentIntent.metadata?.checkout_session_id,
+              status: "PENDING",
+            },
+            data: {
+              status: "FAILED",
+              failure_reason:
+                paymentIntent.last_payment_error?.message || "Payment failed",
+            },
+          });
+          break;
+
+        case "charge.succeeded":
+        case "payment_intent.succeeded":
+        case "payment_intent.created":
+        case "charge.updated":
+          // এই ইভেন্টগুলোর জন্য আপাতত কিছু না করলে শুধু ব্রেক করুন
+          break;
+
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
+      }
+
+      // ৩. স্ট্রাইপকে সফলভাবে রিসিভ হওয়ার রেসপন্স পাঠান (খুবই গুরুত্বপূর্ণ!)
+      return res.status(200).json({ received: true });
+    } catch (err) {
+      console.error("Error processing webhook:", err);
+      // return.status(500).json({ error: "Webhook handler failed" });
+    }
+  },
+);
 
 app.use(
   cors({
@@ -47,7 +118,7 @@ app.use("/api/rentals", auth(Role.TENANT), rentalRouter);
 app.use("/api/payments", auth(Role.TENANT), paymentRouter);
 
 app.use("/api/admin", auth(Role.ADMIN), adminRouter);
-app.use("/api/reviews", auth(Role.TENANT), validateRentalAccess, reviewRouter);
+app.use("/api/reviews", reviewRouter);
 app.use(notFound);
 app.use(globalErrorHandler);
 

@@ -44,7 +44,8 @@ const createCheckoutSession = async (
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      success_url: `${process.env.FRONTEND_URL}/tenant-dashboard/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.FRONTEND_URL}/tenant-dashboard/payment-success?payment_id={CHECKOUT_SESSION_ID}`,
+      // success_url: `${process.env.FRONTEND_URL}/tenant-dashboard/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
       customer_email: userEmail,
       line_items: [
@@ -72,6 +73,7 @@ const createCheckoutSession = async (
     paymentUrl: { transactionResult },
   };
 };
+
 const handleWebhook = async (payload: Buffer, signature: string) => {
   let event: Stripe.Event;
 
@@ -144,7 +146,7 @@ const userPayments = async (userId: string) => {
 
 const getPaymentDetails = async (userId: string, paymentId: string) => {
   const payment = await prisma.payment.findUnique({
-    where: { id: paymentId },
+    where: { stripe_checkout_session_id: paymentId },
     include: {
       rental_request: {
         include: { property: true },

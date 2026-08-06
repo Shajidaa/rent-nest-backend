@@ -98,10 +98,24 @@ const getRentalDetailsFromDB = async (id: string) => {
   });
   return result;
 };
+const getRentedRentalIdForTenantAndProperty = async (tenantId: string, propertyId: string) => {
+  const rental = await prisma.rental.findFirst({
+    where: {
+      tenantId: tenantId,
+      propertyId: propertyId,
+      status:"PAID" 
+    },
+    select: {
+      id: true,
+    },
+  });
 
+  return rental ? rental.id : null;
+};
 export const rentalService = {
   createRentalRequestDB,
 
   getMyRentalsFromDB,
   getRentalDetailsFromDB,
+  getRentedRentalIdForTenantAndProperty
 };

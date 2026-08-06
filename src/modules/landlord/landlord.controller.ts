@@ -51,6 +51,18 @@ const getLandlordProperties = catchAsync(
     });
   },
 );
+// const singleProperties = catchAsync(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const landlordId = req.user?.id;
+
+//     sendResponse(res, {
+//       statusCode: httpStatus.OK,
+//       success: true,
+//       message: "Landlord properties retrieved successfully",
+//       data: { total: properties.length, data: properties },
+//     });
+//   },
+// );
 const updateLandlord = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const landlordId = req.user?.id;

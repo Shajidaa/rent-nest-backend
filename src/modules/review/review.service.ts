@@ -19,7 +19,28 @@ const createdReview = async (
 
   return newReview;
 };
-
+const getReview = async (reviewId: string) => {
+  const review = await prisma.review.findUnique({
+    where: { id: reviewId },
+  });
+  return review;
+};
+const getReviewsByProperty = async (propertyId: string) => {
+  const reviews = await prisma.review.findMany({
+    where: { propertyId },
+    include: {
+      tenant: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return reviews;
+};
 export const reviewService = {
   createdReview,
+  getReview,
+  getReviewsByProperty,
 };

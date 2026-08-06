@@ -62,6 +62,7 @@ const updateProfile = catchAsync(
     const payload = req.body;
 
     const result = await userService.updateMyProfile(userId, payload);
+    console.log(result);
 
     sendResponse(res, {
       success: true,

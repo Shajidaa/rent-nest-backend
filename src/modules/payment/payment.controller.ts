@@ -31,7 +31,7 @@ const handleWebhook = catchAsync(
     const signature = req.headers["stripe-signature"]!;
 
     await paymentServices.handleWebhook(event, signature as string);
-
+    console.log("Webhook handled successfully");
     sendResponse(res, {
       success: true,
       statusCode: 200,

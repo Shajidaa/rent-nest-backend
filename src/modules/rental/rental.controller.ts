@@ -56,10 +56,39 @@ const getRentalDetails = catchAsync(
     });
   },
 );
+const getRentedRentalId = async (req: Request, res: Response) => {
+  try {
+    const tenantId = req.user?.id; 
+    const { propertyId } = req.query; 
 
+    if (!tenantId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    if (!propertyId) {
+      return res.status(400).json({ success: false, message: "Property ID is required" });
+    }
+
+    const rentalId = await rentalService.getRentedRentalIdForTenantAndProperty(
+      tenantId,
+      propertyId as string
+    );
+
+    return res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Rented rental ID fetched successfully",
+      data: rentalId,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 export const rentalController = {
   createRentalRequest,
 
   getMyRentals,
   getRentalDetails,
+  getRentedRentalId
+    
 };

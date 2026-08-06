@@ -11,7 +11,7 @@ router.get(
   auth(Role.ADMIN, Role.LANDLORD, Role.TENANT),
   userController.getProfile,
 );
-router.put(
+router.patch(
   "/profile",
   auth(Role.ADMIN, Role.LANDLORD, Role.TENANT),
   userController.updateProfile,

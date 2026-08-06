@@ -23,7 +23,31 @@ const createdReview = catchAsync(
     });
   },
 );
+const getReview = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const reviewId = req.params.id;
 
+    const result = await reviewService.getReview(reviewId as string);
+    sendResponse(res, {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: "Review fetched successfully",
+      data: result,
+    });
+  },
+);
+const getReviewsByProperty = catchAsync(async (req: Request, res: Response) => {
+  const { propertyId } = req.params;
+  const result = await reviewService.getReviewsByProperty(propertyId as string);
+  sendResponse(res, {
+    success: true,
+    statusCode: HttpStatus.OK,
+    message: "Reviews fetched successfully",
+    data: result,
+  });
+});
 export const reviewController = {
   createdReview,
+  getReview,
+  getReviewsByProperty,
 };

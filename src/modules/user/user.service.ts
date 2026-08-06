@@ -102,36 +102,81 @@ const getMyProfile = async (userId: string) => {
   });
   return user;
 };
+// const updateMyProfile = async (userId: string, payload: any) => {
+//   const { name, profilePhoto, phoneNumber, bio } = payload;
+
+//   const updateProfile = await prisma.user.update({
+//     where: { id: userId },
+//     data: {
+//       name,
+
+//       profile: {
+//         upsert: {
+//           update: {
+//             profilePhoto,
+//             phoneNumber,
+//             bio,
+//           },
+
+//           create: {
+//             profilePhoto,
+//             phoneNumber,
+//             bio,
+//           },
+//         },
+//       },
+//     },
+//     include: {
+//       profile: true,
+//     },
+//   });
+
+//   return updateProfile;
+// };
+
 const updateMyProfile = async (userId: string, payload: any) => {
   const { name, profilePhoto, phoneNumber, bio } = payload;
 
-  const updateProfile = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      name,
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. User table update
+      if (name !== undefined) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { name },
+        });
+      }
 
-      profile: {
-        upsert: {
-          update: {
-            profilePhoto,
-            phoneNumber,
-            bio,
-          },
-
-          create: {
-            profilePhoto,
-            phoneNumber,
-            bio,
-          },
+      // 2. Profile upsert
+      await tx.profile.upsert({
+        where: { userId: userId },
+        update: {
+          ...(profilePhoto !== undefined && { profilePhoto }),
+          ...(phoneNumber !== undefined && { phoneNumber }),
+          ...(bio !== undefined && { bio }),
         },
-      },
-    },
-    include: {
-      profile: true,
-    },
-  });
+        create: {
+          userId: userId,
+          profilePhoto: profilePhoto || "",
+          phoneNumber: phoneNumber || "",
+          bio: bio || "",
+        },
+      });
 
-  return updateProfile;
+      // 3. Final updated user return
+      return await tx.user.findUnique({
+        where: { id: userId },
+        include: {
+          profile: true,
+        },
+      });
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Prisma Transaction Error:", error);
+    throw error;
+  }
 };
 export const userService = {
   createUserFromDB,
