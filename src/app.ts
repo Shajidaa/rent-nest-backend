@@ -84,7 +84,6 @@ app.post(
           console.log(`Unhandled event type: ${event.type}`);
       }
 
-      // ৩. স্ট্রাইপকে সফলভাবে রিসিভ হওয়ার রেসপন্স পাঠান (খুবই গুরুত্বপূর্ণ!)
       return res.status(200).json({ received: true });
     } catch (err) {
       console.error("Error processing webhook:", err);
@@ -99,6 +98,7 @@ app.use(
     credentials: true,
   }),
 );
+// console.log(process.env.APP_URL);
 
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
