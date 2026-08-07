@@ -97,10 +97,30 @@ const updateLandlord = async (
   return updatedLandlord;
 };
 const deleteLandlord = async (landlordId: string, landId: string) => {
-  const deletedLandlord = await prisma.property.delete({
-    where: { landlordId: landlordId, id: landId },
+  return await prisma.$transaction(async (tx) => {
+    const rentals = await tx.rental.findMany({
+      where: { propertyId: landId },
+      select: { id: true },
+    });
+
+    const rentalIds = rentals.map((r) => r.id);
+
+    if (rentalIds.length > 0) {
+      await tx.payment.deleteMany({
+        where: { rental_request_id: { in: rentalIds } },
+      });
+
+      await tx.rental.deleteMany({
+        where: { propertyId: landId },
+      });
+    }
+
+    const deletedLandlord = await tx.property.delete({
+      where: { landlordId: landlordId, id: landId },
+    });
+
+    return deletedLandlord;
   });
-  return deletedLandlord;
 };
 
 const updateLandlordStatusDB = async (

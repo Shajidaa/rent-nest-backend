@@ -10,7 +10,7 @@ model Rental {
   message         String?
   rejectionReason String?
   numberOfGuests  Int?
-  property        Property      @relation(fields: [propertyId], references: [id])
+  property        Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   tenant          User          @relation(fields: [tenantId], references: [id])
   payment         Payment[]
 

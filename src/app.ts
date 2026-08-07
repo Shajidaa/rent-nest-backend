@@ -47,7 +47,6 @@ app.post(
         // return res.status(400).send(`Webhook Error: ${err.message}`);
       }
 
-      // ২. ইভেন্ট হ্যান্ডেল করুন
       switch (event.type) {
         case "checkout.session.completed":
           await handleCheckoutCompleted(
@@ -77,7 +76,6 @@ app.post(
         case "payment_intent.succeeded":
         case "payment_intent.created":
         case "charge.updated":
-          // এই ইভেন্টগুলোর জন্য আপাতত কিছু না করলে শুধু ব্রেক করুন
           break;
 
         default:
@@ -92,14 +90,30 @@ app.post(
   },
 );
 
+// app.use(
+//   cors({
+//     origin: process.env.APP_URL,
+//     credentials: true,
+//   }),
+// );
+// console.log(process.env.APP_URL);
+const allowedOrigins = [process.env.APP_URL];
+
 app.use(
   cors({
-    origin: process.env.APP_URL,
+    origin: (origin, callback) => {
+      // Allow requests
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
-// console.log(process.env.APP_URL);
-
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 
