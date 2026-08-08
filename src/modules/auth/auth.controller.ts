@@ -42,8 +42,20 @@ const refreshToken = catchAsync(
     });
   },
 );
-
+const googleLogin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const payload = req.body;
+    const result = await authService.googleLogin(payload);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Refresh Token get successfully",
+      data: {},
+    });
+  },
+);
 export const authController = {
   login,
   refreshToken,
+  googleLogin,
 };

@@ -45,10 +45,16 @@ enum RequestStatus {
   APPROVED
   REJECTED
   PAID
+  COMPLETED
 }
 
 enum PaymentStatus {
   PENDING
   SUCCEEDED
   FAILED
+}
+
+enum AuthProvider {
+  GOOGLE
+  CREDENTIAL
 }

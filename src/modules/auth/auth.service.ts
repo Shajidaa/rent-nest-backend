@@ -3,6 +3,10 @@ import { prisma } from "../../lib/prisma";
 import bcrypt from "bcrypt";
 import config from "../../config";
 import { jwtUtils } from "../../utils/jwt";
+import { IGoogleLoginPayload } from "./auth.interface";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
+import { googleClient } from "../../lib/googleAuth";
+import { Role } from "../../../generated/prisma/enums";
 
 const loginFromDB = async (payload: any) => {
   const { email, password } = await payload;
@@ -65,8 +69,31 @@ const refreshTokenDB = async (refreshToken: string) => {
   );
   return accessToken;
 };
-
+const googleLogin = async (payload: IGoogleLoginPayload) => {
+  let googleIdTokenPayload: TokenPayload | null | undefined = null;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: payload.idToken,
+      audience: config.google_client_id,
+    });
+    googleIdTokenPayload = ticket.getPayload();
+  } catch (error) {
+    console.log("Google Id Token Verification Failed", error);
+    throw new Error("Invalid or Expired Google Id Token");
+  }
+  if (!googleIdTokenPayload) {
+    throw new Error("Invalid or Expired Google Id Token");
+  }
+  const ifTenantExistGoogleAuth = await prisma.user.findUnique({
+    where: {
+      email: googleIdTokenPayload.email,
+      role: Role.TENANT,
+    },
+  });
+  return {};
+};
 export const authService = {
   loginFromDB,
   refreshTokenDB,
+  googleLogin,
 };
