@@ -69,9 +69,27 @@ const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const paymentCancel = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  // const { id } = req.params;
+  const { rentalRequestId } = req.params;
+
+  const result = await paymentServices.cancelPaymentSession(
+    userId as string,
+    rentalRequestId as string,
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Payment session canceled successfully",
+    data: result,
+  });
+});
+
 export const paymentController = {
   createCheckoutSession,
   handleWebhook,
   getPaymentDetails,
   getUserPayments,
+  paymentCancel,
 };

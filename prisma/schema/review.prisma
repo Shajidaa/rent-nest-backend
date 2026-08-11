@@ -2,7 +2,7 @@ model Review {
     id         String @id @default(uuid())
     propertyId String
     tenantId   String
-    rentalId   String @unique
+    rentalId   String
     rating     Int?
     comment    String @db.Text
 

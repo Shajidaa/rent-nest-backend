@@ -12,5 +12,5 @@ router.post(
 router.post("/confirm", paymentController.handleWebhook);
 router.get("/", paymentController.getUserPayments);
 router.get("/:id", paymentController.getPaymentDetails);
-
+router.post("/cancel/:rentalRequestId", paymentController.paymentCancel);
 export const paymentRouter = router;

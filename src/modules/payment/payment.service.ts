@@ -46,7 +46,8 @@ const createCheckoutSession = async (
       mode: "payment",
       success_url: `${process.env.FRONTEND_URL}/tenant-dashboard/payment-success?payment_id={CHECKOUT_SESSION_ID}`,
       // success_url: `${process.env.FRONTEND_URL}/tenant-dashboard/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
+      // cancel_url: `${process.env.FRONTEND_URL}/tenant-dashboard/payment-cancel?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/tenant-dashboard/payment-cancel?session_id={CHECKOUT_SESSION_ID}&rental_request_id=${rentalRequestId}`,
       customer_email: userEmail,
       line_items: [
         {
@@ -161,10 +162,82 @@ const getPaymentDetails = async (userId: string, paymentId: string) => {
   if (!payment) throw new Error("Payment record not found");
   return payment;
 };
+const cancelPaymentSession = async (
+  userId: string,
+  rentalRequestId: string,
+) => {
+  // 1. Find the payment record associated with this rental request and tenant
+  const payment = await prisma.payment.findFirst({
+    where: {
+      rental_request_id: rentalRequestId,
+      rental_request: { tenantId: userId },
+    },
+    include: { rental_request: true },
+  });
 
+  // If no payment record exists at all, handle it gracefully
+  if (!payment) {
+    return {
+      success: true,
+      message: "No payment record found for this rental request.",
+    };
+  }
+
+  // Idempotency check: If it's already failed, canceled, or completed,
+  // just return success instead of throwing an error on page refreshes.
+  if (payment.status === "FAILED") {
+    return {
+      success: true,
+      message: "Payment session was already cancelled.",
+    };
+  }
+
+  try {
+    // 2. If a Stripe checkout session exists and is still open, expire it
+    if (payment.stripe_checkout_session_id) {
+      try {
+        // Check session status first or try to expire (Stripe throws if already expired/complete)
+        const session = await stripe.checkout.sessions.retrieve(
+          payment.stripe_checkout_session_id,
+        );
+        if (session.status === "open") {
+          await stripe.checkout.sessions.expire(
+            payment.stripe_checkout_session_id,
+          );
+        }
+      } catch (stripeError: any) {
+        console.warn(
+          "Stripe session might already be expired or closed:",
+          stripeError.message,
+        );
+      }
+    }
+
+    // 3. Update your database record to reflect cancellation
+    const updatedPayment = await prisma.payment.update({
+      where: { id: payment.id },
+      data: { status: "FAILED", failure_reason: "Canceled by user" },
+    });
+
+    await prisma.rental.update({
+      where: { id: rentalRequestId },
+      data: { status: "PENDING" },
+    });
+
+    return {
+      success: true,
+      data: updatedPayment,
+      message: "Payment successfully cancelled.",
+    };
+  } catch (error: any) {
+    console.error("Error canceling payment session:", error.message);
+    throw new Error(`Failed to cancel payment: ${error.message}`);
+  }
+};
 export const paymentServices = {
   createCheckoutSession,
   handleWebhook,
   getPaymentDetails,
   userPayments,
+  cancelPaymentSession,
 };
